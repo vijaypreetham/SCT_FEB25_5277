@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-gap: 5px;
+            width: 310px;
+            margin: 20px auto;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            background-color: lightgray;
+            cursor: pointer;
+        }
+        .cell.taken {
+            pointer-events: none;
+        }
+        #status {
+            font-size: 1.5em;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tic-Tac-Toe</h1>
+    <div class="board" id="board"></div>
+    <p id="status">Player X's Turn</p>
+    <button onclick="resetGame()">Reset</button>
+    
+    <script>
+        const board = document.getElementById("board");
+        let cells = [];
+        let currentPlayer = "X";
+        let gameActive = true;
+        let boardState = ["", "", "", "", "", "", "", "", ""];
+
+        function createBoard() {
+            board.innerHTML = "";
+            cells = [];
+            boardState.forEach((cell, index) => {
+                let div = document.createElement("div");
+                div.classList.add("cell");
+                div.dataset.index = index;
+                div.addEventListener("click", handleClick);
+                board.appendChild(div);
+                cells.push(div);
+            });
+        }
+
+        function handleClick(event) {
+            const index = event.target.dataset.index;
+            if (boardState[index] || !gameActive) return;
+            
+            boardState[index] = currentPlayer;
+            event.target.textContent = currentPlayer;
+            event.target.classList.add("taken");
+
+            if (checkWin()) {
+                document.getElementById("status").textContent = `Player ${currentPlayer} Wins!`;
+                gameActive = false;
+                return;
+            }
+
+            if (boardState.every(cell => cell)) {
+                document.getElementById("status").textContent = "It's a Draw!";
+                gameActive = false;
+                return;
+            }
+
+            currentPlayer = currentPlayer === "X" ? "O" : "X";
+            document.getElementById("status").textContent = `Player ${currentPlayer}'s Turn`;
+        }
+
+        function checkWin() {
+            const winPatterns = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], 
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], 
+                [0, 4, 8], [2, 4, 6]
+            ];
+            return winPatterns.some(pattern => {
+                const [a, b, c] = pattern;
+                return boardState[a] && boardState[a] === boardState[b] && boardState[a] === boardState[c];
+            });
+        }
+
+        function resetGame() {
+            boardState = ["", "", "", "", "", "", "", "", ""];
+            gameActive = true;
+            currentPlayer = "X";
+            document.getElementById("status").textContent = "Player X's Turn";
+            createBoard();
+        }
+
+        createBoard();
+    </script>
+</body>
+</html>
